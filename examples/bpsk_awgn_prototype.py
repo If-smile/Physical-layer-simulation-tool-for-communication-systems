@@ -23,14 +23,14 @@ ber_theory = []
 
 for EbN0_dB in EbN0_dB_range:
     EbN0_linear = 10 ** (EbN0_dB / 10)
-    
+
     n_bits = max(100000, int(100 / (0.5 * erfc(np.sqrt(EbN0_linear)))))
-    n_bits = min(n_bits, 10000000)  
+    n_bits = min(n_bits, 10000000)
     tx_bits = np.random.randint(0, 2, n_bits)
     tx_symbols = bpsk_modulate(tx_bits)
     rx_symbols = awgn(tx_symbols, EbN0_linear)
     rx_bits = bpsk_demodulate(rx_symbols)
-    
+
     ber_sim.append(calculate_ber(tx_bits, rx_bits))
     ber_theory.append(0.5 * erfc(np.sqrt(EbN0_linear)))
 

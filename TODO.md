@@ -1,10 +1,15 @@
 # TODO
 
+## Phase 0 — Project Scaffolding (Done)
+
+- [x] Set up directory structure: `pyberlab/modulation/`, `channel/`, `simulation/`, `theory/`, `plot/`, `tests/`, `examples/`
+- [x] Write `pyproject.toml` so the package is locally pip-installable (`pip install -e .`)
+- [x] Write `requirements.txt` (numpy, scipy, matplotlib)
+- [x] Migrate prototype `test.py` → `examples/bpsk_awgn_prototype.py`
+- [x] Verify `pip install -e .` works and all subpackages import
+
 ## Phase 1 — Package Foundation (Weeks 1–2)
 
-- [ ] Set up directory structure: `pyberlab/modulation/`, `channel/`, `simulation/`, `theory/`, `plot/`
-- [ ] Write `pyproject.toml` so the package is locally pip-installable (`pip install -e .`)
-- [ ] Write `requirements.txt` (numpy, scipy, matplotlib)
 - [ ] Implement `modulation/psk.py`: `BPSK`, `QPSK` classes with `modulate` / `demodulate` methods
 - [ ] Implement `modulation/qam.py`: `QAM` class supporting 16-QAM (Gray-coded, normalized power)
 - [ ] Implement `theory/ber.py`: `bpsk_awgn`, `qpsk_awgn`, `qam16_awgn` analytical formulas
