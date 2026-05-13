@@ -24,3 +24,24 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pyberlab*"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long — handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401"]  # unused imports OK in test files
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
