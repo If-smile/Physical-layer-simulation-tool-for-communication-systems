@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyberlab.channel import awgn
+from pyberlab.channel import awgn, rayleigh
 
 
 @pytest.fixture
@@ -54,3 +54,49 @@ def test_awgn_real_output_for_real_input(rng):
     signal = np.ones(100)
     out = awgn(signal, 1.0, rng=rng)
     assert not np.iscomplexobj(out)
+
+
+# ---------------------------------------------------------------------------
+# Rayleigh channel
+# ---------------------------------------------------------------------------
+
+def test_rayleigh_reproducible():
+    """Same rng seed produces identical output."""
+    signal = np.ones(100)
+    out1 = rayleigh(signal, 1.0, rng=np.random.default_rng(7))
+    out2 = rayleigh(signal, 1.0, rng=np.random.default_rng(7))
+    np.testing.assert_array_equal(out1, out2)
+
+
+def test_rayleigh_real_output_for_real_input(rng):
+    """Real input should produce real equalized output."""
+    signal = np.ones(100)
+    out = rayleigh(signal, 1.0, rng=rng)
+    assert not np.iscomplexobj(out)
+
+
+def test_rayleigh_complex_output_for_complex_input(rng):
+    """Complex input should produce complex equalized output."""
+    signal = np.ones(100, dtype=complex)
+    out = rayleigh(signal, 1.0, rng=rng)
+    assert np.iscomplexobj(out)
+
+
+def test_rayleigh_ber_tracks_theory():
+    """Simulated BPSK Rayleigh BER should be within 10% of theory at 10 dB."""
+    from pyberlab.modulation import BPSK
+    from pyberlab.theory import bpsk_rayleigh
+
+    rng = np.random.default_rng(42)
+    mod = BPSK()
+    EbN0_lin = 10.0  # 10 dB
+
+    bits = rng.integers(0, 2, 500_000)
+    rx = rayleigh(mod.modulate(bits), EbN0_lin, mod.bits_per_symbol, rng=rng)
+    ber_sim = float(np.mean(bits != mod.demodulate(rx)))
+    ber_theory = bpsk_rayleigh(EbN0_lin)
+
+    assert abs(ber_sim - ber_theory) / ber_theory < 0.10, (
+        f"Rayleigh BER sim={ber_sim:.4f} theory={ber_theory:.4f}, "
+        f"relative error > 10%"
+    )
