@@ -8,11 +8,11 @@
 - [x] Migrate prototype `test.py` → `examples/bpsk_awgn_prototype.py`
 - [x] Verify `pip install -e .` works and all subpackages import
 
-## Phase 0.5 — Quality Foundations (before any algorithm code)
+## Phase 0.5 — Quality Foundations (Done)
 
-- [ ] Add `__version__ = "0.1.0"` to `pyberlab/__init__.py`, aligned with `pyproject.toml`
-- [ ] Add `[tool.ruff]` section to `pyproject.toml`; commit baseline lint config so style stays consistent from day one
-- [ ] Define a `Modulator` abstract base class in `pyberlab/modulation/base.py` with `bits_per_symbol`, `modulate`, `demodulate` interface — BPSK/QPSK/QAM all inherit from it
+- [x] Add `__version__ = "0.1.0"` to `pyberlab/__init__.py`, aligned with `pyproject.toml`
+- [x] Add `[tool.ruff]` section to `pyproject.toml`; commit baseline lint config so style stays consistent from day one
+- [x] Define a `Modulator` abstract base class in `pyberlab/modulation/base.py` with `bits_per_symbol`, `modulate`, `demodulate` interface — BPSK/QPSK/QAM all inherit from it
 - [ ] Decide reproducibility convention: all simulation entry points accept `seed: int | None`, internally use `np.random.default_rng(seed)` instead of global `np.random` (apply this rule from the very first line of Phase 1 code)
 
 ## Phase 1 — Package Foundation (Weeks 1–2)
