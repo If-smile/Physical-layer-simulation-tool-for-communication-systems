@@ -13,19 +13,19 @@
 - [x] Add `__version__ = "0.1.0"` to `pyberlab/__init__.py`, aligned with `pyproject.toml`
 - [x] Add `[tool.ruff]` section to `pyproject.toml`; commit baseline lint config so style stays consistent from day one
 - [x] Define a `Modulator` abstract base class in `pyberlab/modulation/base.py` with `bits_per_symbol`, `modulate`, `demodulate` interface — BPSK/QPSK/QAM all inherit from it
-- [ ] Decide reproducibility convention: all simulation entry points accept `seed: int | None`, internally use `np.random.default_rng(seed)` instead of global `np.random` (apply this rule from the very first line of Phase 1 code)
+- [x] Decide reproducibility convention: all simulation entry points accept `seed: int | None`, internally use `np.random.default_rng(seed)` instead of global `np.random` (apply this rule from the very first line of Phase 1 code)
 
-## Phase 1 — Package Foundation (Weeks 1–2)
+## Phase 1 — Package Foundation (Done)
 
-- [ ] Implement `modulation/psk.py`: `BPSK`, `QPSK` classes (subclass `Modulator`) with `modulate` / `demodulate` methods
-- [ ] Implement `modulation/qam.py`: `QAM` class supporting 16-QAM (Gray-coded, normalized power)
-- [ ] Implement `theory/ber.py`: `bpsk_awgn`, `qpsk_awgn`, `qam16_awgn` analytical formulas
-- [ ] Implement `channel/awgn.py`: complex and real noise injection (accept optional `rng` parameter for reproducibility)
-- [ ] Build `(ModulatorClass, channel_fn) → theory_fn` dispatch registry in `theory/ber.py` so `run_simulation` can auto-pair simulation with theoretical baseline
-- [ ] Round-trip sanity check: `demodulate(modulate(bits))` must return `bits` exactly when no noise is added (catches bugs earlier than BER tests)
-- [ ] Verify QPSK BER matches theory (should equal BPSK — same Eb/N0 per bit)
-- [ ] Verify 16-QAM BER matches `(3/8) * erfc(sqrt(2 * EbN0 / 5))`
-- [ ] Set up GitHub Actions CI: run `pytest` on every push (Python 3.9–3.12 matrix)
+- [x] Implement `modulation/psk.py`: `BPSK`, `QPSK` classes (subclass `Modulator`) with `modulate` / `demodulate` methods
+- [x] Implement `modulation/qam.py`: `QAM` class supporting 16-QAM (Gray-coded, normalized power)
+- [x] Implement `theory/ber.py`: `bpsk_awgn`, `qpsk_awgn`, `qam16_awgn` analytical formulas
+- [x] Implement `channel/awgn.py`: complex and real noise injection (accept optional `rng` parameter for reproducibility)
+- [x] Build `(ModulatorClass, channel_fn) → theory_fn` dispatch registry in `theory/ber.py` so `run_simulation` can auto-pair simulation with theoretical baseline
+- [x] Round-trip sanity check: `demodulate(modulate(bits))` must return `bits` exactly when no noise is added (catches bugs earlier than BER tests)
+- [x] Verify QPSK BER matches theory (should equal BPSK — same Eb/N0 per bit)
+- [x] Verify 16-QAM BER matches `(3/8) * erfc(sqrt(2 * EbN0 / 5))`
+- [x] Set up GitHub Actions CI: run `pytest` on every push (Python 3.9–3.12 matrix)
 
 ## Phase 2 — Rayleigh Channel (Weeks 3–4)
 
