@@ -27,12 +27,12 @@
 - [x] Verify 16-QAM BER matches `(3/8) * erfc(sqrt(2 * EbN0 / 5))`
 - [x] Set up GitHub Actions CI: run `pytest` on every push (Python 3.9–3.12 matrix)
 
-## Phase 2 — Rayleigh Channel (Weeks 3–4)
+## Phase 2 — Rayleigh Channel (Done)
 
-- [ ] Implement `channel/rayleigh.py`: per-symbol complex Gaussian fading with coherent equalization
-- [ ] Add `bpsk_rayleigh` formula to `theory/ber.py`
+- [x] Implement `channel/rayleigh.py`: per-symbol complex Gaussian fading with coherent equalization
+- [x] Add `bpsk_rayleigh` formula to `theory/ber.py`
 - [ ] Run AWGN vs Rayleigh comparison plot for BPSK (this becomes the primary demo figure)
-- [ ] Confirm simulated Rayleigh BER tracks the theoretical curve `0.5 * (1 - sqrt(EbN0 / (1 + EbN0)))`
+- [x] Confirm simulated Rayleigh BER tracks the theoretical curve `0.5 * (1 - sqrt(EbN0 / (1 + EbN0)))`
 
 ## Phase 3 — Simulation Framework (Weeks 5–6)
 
