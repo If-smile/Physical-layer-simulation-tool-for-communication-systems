@@ -13,3 +13,6 @@ dist/
 # Editors
 .vscode/
 .idea/
+
+# Generated outputs
+outputs/
