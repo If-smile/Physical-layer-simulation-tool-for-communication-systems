@@ -31,26 +31,26 @@
 
 - [x] Implement `channel/rayleigh.py`: per-symbol complex Gaussian fading with coherent equalization
 - [x] Add `bpsk_rayleigh` formula to `theory/ber.py`
-- [ ] Run AWGN vs Rayleigh comparison plot for BPSK (this becomes the primary demo figure)
+- [x] Run AWGN vs Rayleigh comparison plot for BPSK (this becomes the primary demo figure)
 - [x] Confirm simulated Rayleigh BER tracks the theoretical curve `0.5 * (1 - sqrt(EbN0 / (1 + EbN0)))`
 
-## Phase 3 — Simulation Framework (Weeks 5–6)
+## Phase 3 — Simulation Framework (Done)
 
-- [ ] Implement `simulation/runner.py`: `run_simulation(modulator, channel_fn, EbN0_dB_range, ...)` unified interface
-- [ ] Migrate adaptive sample sizing logic from `test.py` into `runner.py`
-- [ ] Implement `simulation/metrics.py`: BER calculation and basic statistics
-- [ ] Implement `plot/curves.py`: generate and save standard BER plots (semilogy, grid, legend)
-- [ ] Add CSV export to `run_simulation` results dict
-- [ ] End-to-end test: one function call produces a complete BPSK/AWGN experiment with plot and CSV
+- [x] Implement `simulation/runner.py`: `run_simulation(modulator, channel_fn, EbN0_dB_range, ...)` unified interface
+- [x] Migrate adaptive sample sizing logic from `test.py` into `runner.py`
+- [x] Implement `simulation/metrics.py`: BER calculation and basic statistics
+- [x] Implement `plot/curves.py`: generate and save standard BER plots (semilogy, grid, legend)
+- [x] Add CSV export to `run_simulation` results dict
+- [x] End-to-end test: one function call produces a complete BPSK/AWGN experiment with plot and CSV
 
 ## Phase 4 — 64-QAM and Testing (Weeks 7–8)
 
 - [ ] Extend `modulation/qam.py` to support 64-QAM
 - [ ] Add `qam64_awgn` formula to `theory/ber.py`
 - [ ] Verify 64-QAM BER matches `(7/24) * erfc(sqrt(EbN0 / 7))`
-- [ ] Write `tests/test_modulation.py`: round-trip bit integrity, power normalization
-- [ ] Write `tests/test_channel.py`: noise power matches specified Eb/N0
-- [ ] Write `tests/test_simulation.py`: high-SNR BER → 0; low-SNR BER → 0.5
+- [x] Write `tests/test_modulation.py`: round-trip bit integrity, power normalization
+- [x] Write `tests/test_channel.py`: noise power matches specified Eb/N0
+- [x] Write `tests/test_simulation.py`: high-SNR BER → 0; low-SNR BER → 0.5
 - [ ] Implement `modulation/psk.py`: 8-PSK (Gray-coded)
 
 ## Phase 5 — Documentation and Release (Weeks 9–10)
