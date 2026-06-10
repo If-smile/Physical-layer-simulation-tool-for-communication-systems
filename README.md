@@ -7,11 +7,11 @@ A pip-installable Python library for simulating Bit Error Rate (BER) performance
 ## Features
 
 - **Modulation schemes**: BPSK, QPSK, 16-QAM (Gray-coded) — 64-QAM and 8-PSK coming in Phase 4
-- **Channel models**: AWGN — Rayleigh flat fading coming in Phase 2
+- **Channel models**: AWGN, Rayleigh flat fading
 - **Theoretical baselines**: Closed-form BER formulas for every modulation/channel pair, auto-paired via dispatch registry
 - **Reproducibility**: All simulation entry points accept a `seed` parameter via `np.random.default_rng`
-- **Adaptive sampling**: Automatically scales sample count per SNR point to ensure statistical reliability *(Phase 3)*
-- **Export**: Results to CSV; BER curves to standard publication-ready plots *(Phase 3)*
+- **Adaptive sampling**: Automatically scales sample count per SNR point to ensure statistical reliability
+- **Export**: Results to CSV; BER curves to publication-ready plots
 
 ---
 
@@ -29,35 +29,21 @@ Requires Python 3.9+ and numpy, scipy, matplotlib (installed automatically).
 
 ```python
 import numpy as np
-from pyberlab.modulation import BPSK, QPSK, QAM16
-from pyberlab.channel import awgn
-from pyberlab.theory import bpsk_awgn
+from pyberlab.modulation import BPSK
+from pyberlab.channel import awgn, rayleigh
+from pyberlab.simulation import run_simulation
+from pyberlab.plot import plot_ber
 
-rng = np.random.default_rng(42)
-mod = BPSK()
+EbN0_dB = np.arange(0, 13)
 
-EbN0_dB = 4.0
-EbN0_lin = 10 ** (EbN0_dB / 10)
+res_awgn     = run_simulation(BPSK(), awgn,     EbN0_dB, seed=42, csv_path="bpsk_awgn.csv")
+res_rayleigh = run_simulation(BPSK(), rayleigh,  EbN0_dB, seed=42, csv_path="bpsk_rayleigh.csv")
 
-bits = rng.integers(0, 2, 100_000)
-rx = awgn(mod.modulate(bits), EbN0_lin, mod.bits_per_symbol, rng=rng)
-rx_bits = mod.demodulate(rx)
-
-ber_sim = float(np.mean(bits != rx_bits))
-ber_theory = bpsk_awgn(EbN0_lin)
-print(f"BER  sim={ber_sim:.4f}  theory={ber_theory:.4f}")
-```
-
-Once the simulation framework (Phase 3) is complete, the interface simplifies to:
-
-```python
-from pyberlab.simulation.runner import run_simulation
-
-results = run_simulation(
-    modulator=BPSK(),
-    channel_fn=awgn,
-    EbN0_dB_range=np.arange(0, 11),
-    seed=42,
+plot_ber(
+    [res_awgn, res_rayleigh],
+    ["BPSK AWGN", "BPSK Rayleigh"],
+    title="BPSK: AWGN vs Rayleigh Fading",
+    save_path="ber_comparison.png",
 )
 ```
 
@@ -69,12 +55,12 @@ results = run_simulation(
 pyberlab/
 ├── pyberlab/
 │   ├── modulation/       # BPSK, QPSK, QAM16, QAM64 (+ Modulator ABC)
-│   ├── channel/          # AWGN (Rayleigh in Phase 2)
-│   ├── simulation/       # run_simulation, metrics (Phase 3)
+│   ├── channel/          # AWGN, Rayleigh
+│   ├── simulation/       # run_simulation, metrics
 │   ├── theory/           # Analytical BER formulas + dispatch registry
-│   └── plot/             # BER curve generation (Phase 3)
+│   └── plot/             # BER curve generation
 ├── examples/
-├── tests/
+├── tests/                # 70 tests, CI on Python 3.9–3.12
 ├── pyproject.toml
 └── requirements.txt
 ```
@@ -90,8 +76,8 @@ See [TODO.md](TODO.md) for the full implementation plan.
 | 0 | Directory structure, pyproject.toml, pip install | ✅ Done |
 | 0.5 | Modulator ABC, ruff config, rng convention | ✅ Done |
 | 1 | BPSK, QPSK, 16-QAM, AWGN, theory BER, CI | ✅ Done |
-| 2 | Rayleigh channel, AWGN vs Rayleigh comparison | Planned |
-| 3 | Simulation framework, CSV export, plots | Planned |
+| 2 | Rayleigh channel, AWGN vs Rayleigh comparison | ✅ Done |
+| 3 | Simulation framework, CSV export, plots | ✅ Done |
 | 4 | 64-QAM, 8-PSK, unit tests | Planned |
 | 5 | Docs, notebooks, PyPI release | Planned |
 
