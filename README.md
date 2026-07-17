@@ -1,19 +1,21 @@
-# pyberlab — Physical Layer BER Simulation for Communication Systems
+# pyberlab — Physical-Layer BER Simulation
 
-A pip-installable Python library for simulating Bit Error Rate (BER) performance of common digital modulation schemes over standard channel models. Designed for wireless communications researchers and engineers who want reproducible, publication-quality BER curves without MATLAB.
-
----
+`pyberlab` is a Python library for simulating bit-error-rate (BER)
+performance of digital modulation schemes over common wireless channel models.
+It is intended for reproducible communication-systems experiments without a
+MATLAB dependency.
 
 ## Features
 
-- **Modulation schemes**: BPSK, QPSK, 16-QAM (Gray-coded) — 64-QAM and 8-PSK coming in Phase 4
-- **Channel models**: AWGN, Rayleigh flat fading
-- **Theoretical baselines**: Closed-form BER formulas for every modulation/channel pair, auto-paired via dispatch registry
-- **Reproducibility**: All simulation entry points accept a `seed` parameter via `np.random.default_rng`
-- **Adaptive sampling**: Automatically scales sample count per SNR point to ensure statistical reliability
-- **Export**: Results to CSV; BER curves to publication-ready plots
-
----
+- Modulation: BPSK, QPSK, Gray-coded 16-QAM, and Gray-coded 64-QAM
+- Channels: AWGN and independent Rayleigh flat fading with perfect coherent
+  equalisation
+- Theory baselines: exact hard-decision BER for the supported AWGN schemes;
+  Rayleigh BER for every implemented modulation
+- Reproducible Monte-Carlo experiments through `numpy.random.Generator` seeds
+- Adaptive sample counts based on the theoretical BER, with a configurable cap
+- CSV export and publication-ready semilog BER plots
+- Parameter validation that prevents truncated bit streams and invalid SNRs
 
 ## Installation
 
@@ -21,82 +23,72 @@ A pip-installable Python library for simulating Bit Error Rate (BER) performance
 pip install -e .
 ```
 
-Requires Python 3.9+ and numpy, scipy, matplotlib (installed automatically).
+For development tools and tests:
 
----
+```bash
+pip install -e ".[dev]"
+```
 
-## Quick Start
+Python 3.9+ is required.
+
+## Quick start
 
 ```python
 import numpy as np
-from pyberlab.modulation import BPSK
+
 from pyberlab.channel import awgn, rayleigh
-from pyberlab.simulation import run_simulation
+from pyberlab.modulation import BPSK, QAM64
 from pyberlab.plot import plot_ber
+from pyberlab.simulation import run_simulation
 
 EbN0_dB = np.arange(0, 13)
 
-res_awgn     = run_simulation(BPSK(), awgn,     EbN0_dB, seed=42, csv_path="bpsk_awgn.csv")
-res_rayleigh = run_simulation(BPSK(), rayleigh,  EbN0_dB, seed=42, csv_path="bpsk_rayleigh.csv")
+bpsk_awgn = run_simulation(BPSK(), awgn, EbN0_dB, seed=42)
+bpsk_rayleigh = run_simulation(BPSK(), rayleigh, EbN0_dB, seed=42)
+qam64_awgn = run_simulation(QAM64(), awgn, EbN0_dB, seed=42)
 
 plot_ber(
-    [res_awgn, res_rayleigh],
-    ["BPSK AWGN", "BPSK Rayleigh"],
-    title="BPSK: AWGN vs Rayleigh Fading",
-    save_path="ber_comparison.png",
+    [bpsk_awgn, bpsk_rayleigh, qam64_awgn],
+    ["BPSK AWGN", "BPSK Rayleigh", "64-QAM AWGN"],
+    title="BER comparison",
+    save_path="outputs/ber_comparison.png",
 )
 ```
 
----
+Each result dictionary contains `EbN0_dB`, simulated and theoretical BER,
+the number of simulated bits, and error counts. Pass `csv_path` to
+`run_simulation` to persist the result table.
 
-## Project Structure
+## Theory model
+
+For BPSK and QPSK, the AWGN and coherent-Rayleigh formulas are closed form.
+For Gray-coded 16-QAM and 64-QAM, the AWGN baseline exactly enumerates the
+hard-decision PAM regions and Gray-label Hamming distances. Their Rayleigh
+baseline numerically averages that exact conditional BER over the exponential
+instantaneous-SNR distribution.
+
+The formulas therefore match the package's hard-decision receiver model at low
+SNR as well as high SNR. They are not the common high-SNR QAM approximations.
+
+## Project layout
 
 ```
 pyberlab/
-├── pyberlab/
-│   ├── modulation/       # BPSK, QPSK, QAM16, QAM64 (+ Modulator ABC)
-│   ├── channel/          # AWGN, Rayleigh
-│   ├── simulation/       # run_simulation, metrics
-│   ├── theory/           # Analytical BER formulas + dispatch registry
-│   └── plot/             # BER curve generation
-├── examples/
-├── tests/                # 70 tests, CI on Python 3.9–3.12
-├── pyproject.toml
-└── requirements.txt
+├── modulation/       # Modulator ABC, BPSK, QPSK, 16-QAM, 64-QAM
+├── channel/          # AWGN and coherent Rayleigh flat fading
+├── simulation/       # Runner, BER metrics, CSV output
+├── theory/           # Analytical and numerical BER baselines
+└── plot/             # BER curve generation
+examples/             # Standalone prototype example
+tests/                # Unit and end-to-end tests
 ```
 
----
+## Status and roadmap
 
-## Roadmap
-
-See [TODO.md](TODO.md) for the full implementation plan.
-
-| Phase | Scope | Status |
-|---|---|---|
-| 0 | Directory structure, pyproject.toml, pip install | ✅ Done |
-| 0.5 | Modulator ABC, ruff config, rng convention | ✅ Done |
-| 1 | BPSK, QPSK, 16-QAM, AWGN, theory BER, CI | ✅ Done |
-| 2 | Rayleigh channel, AWGN vs Rayleigh comparison | ✅ Done |
-| 3 | Simulation framework, CSV export, plots | ✅ Done |
-| 4 | 64-QAM, 8-PSK, unit tests | Planned |
-| 5 | Docs, notebooks, PyPI release | Planned |
-
----
-
-## Requirements
-
-- Python 3.9+
-- numpy >= 1.24
-- scipy >= 1.10
-- matplotlib >= 3.7
-
----
-
-## Background
-
-This project fills the gap between MATLAB-based simulation tools and scattered teaching scripts. The goal is a clean, testable Python implementation with results that can be verified against known analytical BER formulas — useful both for research prototyping and for learning digital communications fundamentals.
-
----
+The initial library, Rayleigh support, simulation framework, CSV export,
+plotting, and 64-QAM are complete. Remaining near-term work is Gray-coded
+8-PSK, notebooks/API documentation, and a PyPI release. See [TODO.md](TODO.md)
+for the detailed plan.
 
 ## License
 

@@ -56,6 +56,21 @@ def run_simulation(
         ``n_bits``, ``n_errors``  — each a list of length
         ``len(EbN0_dB_range)``.
     """
+    if not isinstance(modulator, Modulator):
+        raise TypeError("modulator must be an instance of Modulator")
+    if not callable(channel_fn):
+        raise TypeError("channel_fn must be callable")
+    if not isinstance(min_errors, (int, np.integer)) or min_errors <= 0:
+        raise ValueError("min_errors must be a positive integer")
+    if not isinstance(max_bits, (int, np.integer)) or max_bits < modulator.bits_per_symbol:
+        raise ValueError("max_bits must be at least bits_per_symbol")
+
+    EbN0_dB_values = list(EbN0_dB_range)
+    if not EbN0_dB_values:
+        raise ValueError("EbN0_dB_range must not be empty")
+    if not all(np.isfinite(value) for value in EbN0_dB_values):
+        raise ValueError("EbN0_dB_range must contain only finite values")
+
     rng = np.random.default_rng(seed)
 
     modulator_name = type(modulator).__name__
@@ -70,14 +85,16 @@ def run_simulation(
         "n_errors": [],
     }
 
-    for EbN0_dB in EbN0_dB_range:
+    for EbN0_dB in EbN0_dB_values:
         EbN0_linear = 10 ** (EbN0_dB / 10)
+        if not np.isfinite(EbN0_linear) or EbN0_linear <= 0:
+            raise ValueError("Eb/N0 values must produce finite positive linear SNRs")
 
         # Adaptive sample sizing: target min_errors expected bit errors
         expected_ber = float(theory_fn(EbN0_linear))
         expected_ber = max(expected_ber, 1e-10)  # avoid division by zero
         n_bits = int(min_errors / expected_ber)
-        n_bits = max(100_000, min(n_bits, max_bits))
+        n_bits = min(max_bits, max(100_000, n_bits))
         # Align to bits_per_symbol
         bps = modulator.bits_per_symbol
         n_bits = (n_bits // bps) * bps

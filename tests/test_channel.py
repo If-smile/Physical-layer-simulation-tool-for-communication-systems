@@ -56,6 +56,19 @@ def test_awgn_real_output_for_real_input(rng):
     assert not np.iscomplexobj(out)
 
 
+@pytest.mark.parametrize("channel", [awgn, rayleigh])
+@pytest.mark.parametrize("EbN0_linear", [0, -1, np.inf])
+def test_channels_reject_invalid_snr(channel, EbN0_linear):
+    with pytest.raises(ValueError, match="finite positive"):
+        channel(np.ones(4), EbN0_linear)
+
+
+@pytest.mark.parametrize("channel", [awgn, rayleigh])
+def test_channels_reject_invalid_bits_per_symbol(channel):
+    with pytest.raises(ValueError, match="positive integer"):
+        channel(np.ones(4), 1.0, bits_per_symbol=0)
+
+
 # ---------------------------------------------------------------------------
 # Rayleigh channel
 # ---------------------------------------------------------------------------

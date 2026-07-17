@@ -39,6 +39,11 @@ def plot_ber(
     -------
     matplotlib.figure.Figure
     """
+    if len(results_list) != len(labels):
+        raise ValueError("results_list and labels must have the same length")
+    if not results_list:
+        raise ValueError("results_list must not be empty")
+
     fig, ax = plt.subplots(figsize=(8, 6))
 
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]

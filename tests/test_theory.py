@@ -9,8 +9,11 @@ from pyberlab.theory.ber import (
     bpsk_rayleigh,
     get_theory_fn,
     qam16_awgn,
+    qam16_rayleigh,
     qam64_awgn,
+    qam64_rayleigh,
     qpsk_awgn,
+    qpsk_rayleigh,
 )
 
 
@@ -31,18 +34,32 @@ def test_qpsk_awgn_equals_bpsk_awgn():
     np.testing.assert_allclose(qpsk_awgn(lin), bpsk_awgn(lin))
 
 
-@pytest.mark.parametrize("EbN0_dB", [0, 5, 10, 15])
-def test_qam16_awgn_formula(EbN0_dB):
-    lin = 10 ** (EbN0_dB / 10)
-    expected = (3 / 8) * erfc(np.sqrt(2 * lin / 5))
-    assert qam16_awgn(lin) == pytest.approx(expected, rel=1e-9)
+def test_qam16_awgn_exact_values():
+    lin = 10 ** (np.array([0, 5, 10, 15]) / 10)
+    expected = [
+        0.1409816350668416,
+        0.04189276004646234,
+        0.001754150617892711,
+        1.841855511268188e-07,
+    ]
+    np.testing.assert_allclose(qam16_awgn(lin), expected, rtol=1e-12)
 
 
-@pytest.mark.parametrize("EbN0_dB", [0, 5, 10, 15])
-def test_qam64_awgn_formula(EbN0_dB):
-    lin = 10 ** (EbN0_dB / 10)
-    expected = (7 / 24) * erfc(np.sqrt(lin / 7))
-    assert qam64_awgn(lin) == pytest.approx(expected, rel=1e-9)
+def test_qam64_awgn_exact_values():
+    lin = 10 ** (np.array([0, 5, 10, 15]) / 10)
+    expected = [
+        0.1998413523001502,
+        0.1007916072951138,
+        0.02653270879756516,
+        0.000772472180420463,
+    ]
+    np.testing.assert_allclose(qam64_awgn(lin), expected, rtol=1e-12)
+
+
+def test_exact_qam64_baseline_corrects_low_snr_approximation():
+    """The common high-SNR approximation underestimates BER at 0 dB."""
+    approximation = (7 / 24) * erfc(np.sqrt(1 / 7))
+    assert qam64_awgn(1.0) > approximation
 
 
 @pytest.mark.parametrize("EbN0_dB", [0, 5, 10, 15])
@@ -75,6 +92,25 @@ def test_rayleigh_worse_than_awgn():
     assert np.all(bpsk_rayleigh(lin) > bpsk_awgn(lin))
 
 
+def test_qpsk_rayleigh_equals_bpsk_rayleigh():
+    lin = np.array([1.0, 3.162, 10.0])
+    np.testing.assert_allclose(qpsk_rayleigh(lin), bpsk_rayleigh(lin))
+
+
+def test_qam_rayleigh_values():
+    lin = 10 ** (np.array([0, 5, 10, 15]) / 10)
+    np.testing.assert_allclose(
+        qam16_rayleigh(lin),
+        [0.197573957989034, 0.1031315911194764, 0.04237097119324414, 0.01489209062604484],
+        rtol=1e-12,
+    )
+    np.testing.assert_allclose(
+        qam64_rayleigh(lin),
+        [0.2470632661919897, 0.1535529447382122, 0.07667955322432671, 0.03061624049339226],
+        rtol=1e-12,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Dispatch registry
 # ---------------------------------------------------------------------------
@@ -85,11 +121,14 @@ def test_rayleigh_worse_than_awgn():
     ("QAM16", "awgn",     qam16_awgn),
     ("QAM64", "awgn",     qam64_awgn),
     ("BPSK",  "rayleigh", bpsk_rayleigh),
+    ("QPSK",  "rayleigh", qpsk_rayleigh),
+    ("QAM16", "rayleigh", qam16_rayleigh),
+    ("QAM64", "rayleigh", qam64_rayleigh),
 ])
 def test_get_theory_fn_returns_correct_function(mod_name, ch_name, expected_fn):
     assert get_theory_fn(mod_name, ch_name) is expected_fn
 
 
 def test_get_theory_fn_raises_on_unknown_pair():
-    with pytest.raises(KeyError, match="QAM16.*rayleigh"):
-        get_theory_fn("QAM16", "rayleigh")
+    with pytest.raises(KeyError, match="NotAModulator.*rayleigh"):
+        get_theory_fn("NotAModulator", "rayleigh")

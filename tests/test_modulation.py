@@ -53,3 +53,19 @@ def test_output_length(cls, rng):
     assert len(symbols) == n_sym
     recovered = mod.demodulate(symbols)
     assert len(recovered) == n_sym * bps
+
+
+@pytest.mark.parametrize("cls", [BPSK, QPSK, QAM16, QAM64])
+def test_rejects_invalid_bit_input(cls):
+    mod = cls()
+    if mod.bits_per_symbol > 1:
+        with pytest.raises(ValueError, match="multiple"):
+            mod.modulate(np.zeros(mod.bits_per_symbol + 1, dtype=int))
+    with pytest.raises(ValueError, match="only 0 and 1"):
+        mod.modulate(np.full(mod.bits_per_symbol, 2, dtype=int))
+
+
+@pytest.mark.parametrize("cls", [BPSK, QPSK, QAM16, QAM64])
+def test_rejects_non_vector_received_input(cls):
+    with pytest.raises(ValueError, match="one-dimensional"):
+        cls().demodulate(np.ones((2, 2)))

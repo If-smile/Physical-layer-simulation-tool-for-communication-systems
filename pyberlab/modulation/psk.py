@@ -19,10 +19,12 @@ class BPSK(Modulator):
 
     def modulate(self, bits: np.ndarray) -> np.ndarray:
         """Map bits {0, 1} → symbols {-1, +1}."""
+        bits = self._validate_bits(bits)
         return (2 * bits - 1).astype(float)
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
         """Hard decision on real part: positive → 1, negative → 0."""
+        received = self._validate_received(received)
         return (np.real(received) > 0).astype(int)
 
 
@@ -44,10 +46,9 @@ class QPSK(Modulator):
     def modulate(self, bits: np.ndarray) -> np.ndarray:
         """Map bit pairs to complex QPSK symbols.
 
-        Bits are processed in pairs. If ``len(bits)`` is odd the last bit is
-        silently dropped.
+        Bits are processed in pairs; an odd-length input is rejected.
         """
-        bits = bits[: (len(bits) // 2) * 2].reshape(-1, 2)
+        bits = self._validate_bits(bits).reshape(-1, 2)
         # I branch: bit 0 → {-1, +1}, Q branch: bit 1 → {-1, +1}
         i = (2 * bits[:, 0] - 1).astype(float)
         q = (2 * bits[:, 1] - 1).astype(float)
@@ -55,6 +56,7 @@ class QPSK(Modulator):
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
         """Separate I/Q hard decisions, interleave back to bit stream."""
+        received = self._validate_received(received)
         i_bits = (np.real(received) > 0).astype(int)
         q_bits = (np.imag(received) > 0).astype(int)
         # Interleave: [i0, q0, i1, q1, ...]

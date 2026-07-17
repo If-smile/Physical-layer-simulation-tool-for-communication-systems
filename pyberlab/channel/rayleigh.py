@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from .awgn import _validate_channel_inputs
+
 
 def rayleigh(
     signal: np.ndarray,
@@ -41,6 +43,8 @@ def rayleigh(
     """
     if rng is None:
         rng = np.random.default_rng()
+
+    signal = _validate_channel_inputs(signal, EbN0_linear, bits_per_symbol)
 
     n = len(signal)
 

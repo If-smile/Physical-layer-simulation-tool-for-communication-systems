@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from pyberlab.channel import awgn, rayleigh
-from pyberlab.modulation import BPSK, QPSK, QAM16
+from pyberlab.modulation import BPSK, QPSK, QAM16, QAM64
 from pyberlab.simulation import run_simulation
 
 
@@ -84,6 +84,27 @@ def test_runs_without_error(mod_cls):
 
 def test_rayleigh_channel_runs():
     run_simulation(BPSK(), rayleigh, [0, 5, 10], seed=0)
+
+
+@pytest.mark.parametrize("mod_cls", [QAM16, QAM64])
+def test_qam_awgn_simulation_tracks_exact_theory(mod_cls):
+    res = run_simulation(mod_cls(), awgn, [0, 8], seed=123, min_errors=300)
+    np.testing.assert_allclose(res["ber_sim"], res["ber_theory"], rtol=0.08)
+
+
+@pytest.mark.parametrize("mod_cls", [QPSK, QAM16, QAM64])
+def test_rayleigh_simulation_tracks_theory(mod_cls):
+    res = run_simulation(mod_cls(), rayleigh, [0, 10], seed=123, min_errors=300)
+    np.testing.assert_allclose(res["ber_sim"], res["ber_theory"], rtol=0.10)
+
+
+def test_rejects_invalid_sampling_parameters():
+    with pytest.raises(ValueError, match="min_errors"):
+        run_simulation(BPSK(), awgn, [0], min_errors=0)
+    with pytest.raises(ValueError, match="max_bits"):
+        run_simulation(BPSK(), awgn, [0], max_bits=0)
+    with pytest.raises(ValueError, match="must not be empty"):
+        run_simulation(BPSK(), awgn, [])
 
 
 # ---------------------------------------------------------------------------

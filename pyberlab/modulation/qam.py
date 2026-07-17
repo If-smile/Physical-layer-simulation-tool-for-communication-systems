@@ -7,11 +7,6 @@ import numpy as np
 from .base import Modulator
 
 
-def _bin_to_gray(n: int) -> int:
-    """Convert binary integer to Gray code."""
-    return n ^ (n >> 1)
-
-
 def _gray_to_bin(g: int) -> int:
     """Convert Gray-coded integer to binary."""
     n = g
@@ -41,11 +36,8 @@ class _SquareQAM(Modulator):
         self._bpd = self.bits_per_symbol // 2  # bits per dimension
 
         # Gray-coded PAM levels for one dimension.
-        # Position i in this array corresponds to Gray code _bin_to_gray(i).
+        # Position i in this array corresponds to Gray-code index i.
         raw_levels = np.arange(-(m - 1), m, 2, dtype=float)  # e.g. [-3,-1,+1,+3]
-        self._pam_levels = np.array(
-            [raw_levels[_gray_to_bin(_bin_to_gray(i))] for i in range(m)]
-        )
         # Simpler: map Gray index → raw level via gray_to_bin
         self._pam_levels = raw_levels[[_gray_to_bin(g) for g in range(m)]]
 
@@ -89,8 +81,9 @@ class _SquareQAM(Modulator):
         """Map bits to unit-power complex QAM symbols."""
         bps = self.bits_per_symbol
         bpd = self._bpd
+        bits = self._validate_bits(bits)
         n_sym = len(bits) // bps
-        bits = bits[: n_sym * bps].reshape(n_sym, bps)
+        bits = bits.reshape(n_sym, bps)
 
         i_levels = self._bits_to_pam(bits[:, :bpd].flatten())
         q_levels = self._bits_to_pam(bits[:, bpd:].flatten())
@@ -99,6 +92,7 @@ class _SquareQAM(Modulator):
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
         """Nearest-neighbour decision → bit stream."""
+        received = self._validate_received(received)
         bpd = self._bpd
         n_sym = len(received)
         r = received * self._scale  # undo normalisation

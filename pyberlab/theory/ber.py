@@ -13,7 +13,8 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
-from scipy.special import erfc
+from scipy.integrate import quad
+from scipy.special import erfc, ndtr
 
 # ---------------------------------------------------------------------------
 # Theoretical BER formulas
@@ -33,20 +34,73 @@ def qpsk_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
     return 0.5 * erfc(np.sqrt(EbN0_linear))
 
 
-def qam16_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for 16-QAM over AWGN (Gray-coded, exact for rectangular const.).
+def _gray_labels(order: int) -> np.ndarray:
+    """Return the Gray-code label associated with each ascending PAM level."""
+    levels = int(np.sqrt(order))
+    return np.arange(levels, dtype=np.uint8) ^ (
+        np.arange(levels, dtype=np.uint8) >> 1
+    )
 
-    Formula: (3/8) * erfc(sqrt(2 * Eb/N0 / 5))
+
+def _square_qam_awgn_ber(
+    EbN0_linear: np.ndarray | float, order: int
+) -> np.ndarray | float:
+    """Exact hard-decision BER for Gray-coded square QAM over AWGN.
+
+    The calculation enumerates one-dimensional PAM decision regions and their
+    Gray-label Hamming distances.  I and Q are independent and identically
+    distributed, so their per-bit BER is also the BER of the QAM constellation.
     """
-    return (3 / 8) * erfc(np.sqrt(2 * EbN0_linear / 5))
+    snr = np.asarray(EbN0_linear, dtype=float)
+    if np.any(snr < 0):
+        raise ValueError("EbN0_linear must be non-negative")
+
+    levels_per_axis = int(np.sqrt(order))
+    bits_per_axis = int(np.log2(levels_per_axis))
+    bits_per_symbol = 2 * bits_per_axis
+    levels = np.arange(-(levels_per_axis - 1), levels_per_axis, 2, dtype=float)
+    thresholds = (levels[:-1] + levels[1:]) / 2
+    labels = _gray_labels(order)
+    hamming = np.unpackbits(
+        (labels[:, np.newaxis] ^ labels[np.newaxis, :])[:, :, np.newaxis],
+        axis=2,
+        bitorder="big",
+    ).sum(axis=2)
+
+    # Undo constellation normalisation to express the AWGN standard deviation
+    # in the native PAM-level coordinates.
+    scale = np.sqrt(2.0 * (levels_per_axis**2 - 1) / 3.0)
+    snr_flat = snr.reshape(-1)
+    result = np.empty_like(snr_flat)
+
+    for index, value in enumerate(snr_flat):
+        if value == 0:
+            result[index] = 0.5
+            continue
+
+        sigma = scale / np.sqrt(2.0 * bits_per_symbol * value)
+        lower = np.concatenate(([-np.inf], thresholds))
+        upper = np.concatenate((thresholds, [np.inf]))
+        probabilities = ndtr((upper[np.newaxis, :] - levels[:, np.newaxis]) / sigma)
+        probabilities -= ndtr(
+            (lower[np.newaxis, :] - levels[:, np.newaxis]) / sigma
+        )
+        result[index] = np.sum(probabilities * hamming) / (
+            levels_per_axis * bits_per_axis
+        )
+
+    result = result.reshape(snr.shape)
+    return float(result) if result.ndim == 0 else result
+
+
+def qam16_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
+    """Exact BER for Gray-coded 16-QAM over AWGN with hard decisions."""
+    return _square_qam_awgn_ber(EbN0_linear, order=16)
 
 
 def qam64_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for 64-QAM over AWGN (Gray-coded, exact for rectangular const.).
-
-    Formula: (7/24) * erfc(sqrt(Eb/N0 / 7))
-    """
-    return (7 / 24) * erfc(np.sqrt(EbN0_linear / 7))
+    """Exact BER for Gray-coded 64-QAM over AWGN with hard decisions."""
+    return _square_qam_awgn_ber(EbN0_linear, order=64)
 
 
 def bpsk_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
@@ -56,6 +110,52 @@ def bpsk_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
     """
     x = EbN0_linear / (1.0 + EbN0_linear)
     return 0.5 * (1.0 - np.sqrt(x))
+
+
+def qpsk_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
+    """BER for Gray-coded QPSK over coherent Rayleigh flat fading."""
+    return bpsk_rayleigh(EbN0_linear)
+
+
+def _square_qam_rayleigh_ber(
+    EbN0_linear: np.ndarray | float, order: int
+) -> np.ndarray | float:
+    """Average exact AWGN QAM BER over independent Rayleigh fading.
+
+    With coherent equalisation, the instantaneous Eb/N0 is exponentially
+    distributed around the average Eb/N0. Adaptive quadrature evaluates that
+    expectation accurately without a Monte-Carlo baseline.
+    """
+    snr = np.asarray(EbN0_linear, dtype=float)
+    if np.any(snr < 0):
+        raise ValueError("EbN0_linear must be non-negative")
+
+    result = np.empty_like(snr.reshape(-1))
+    for index, value in enumerate(snr.reshape(-1)):
+        if value == 0:
+            result[index] = 0.5
+            continue
+        result[index] = quad(
+            lambda fading: float(_square_qam_awgn_ber(value * fading, order))
+            * np.exp(-fading),
+            0.0,
+            np.inf,
+            epsabs=1e-11,
+            epsrel=1e-10,
+            limit=200,
+        )[0]
+    result = result.reshape(snr.shape)
+    return float(result) if result.ndim == 0 else result
+
+
+def qam16_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
+    """BER for Gray-coded 16-QAM over coherent Rayleigh flat fading."""
+    return _square_qam_rayleigh_ber(EbN0_linear, order=16)
+
+
+def qam64_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
+    """BER for Gray-coded 64-QAM over coherent Rayleigh flat fading."""
+    return _square_qam_rayleigh_ber(EbN0_linear, order=64)
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +172,9 @@ _REGISTRY: dict[tuple[str, str], Callable] = {
     ("QAM16", "awgn"): qam16_awgn,
     ("QAM64", "awgn"): qam64_awgn,
     ("BPSK", "rayleigh"): bpsk_rayleigh,
+    ("QPSK", "rayleigh"): qpsk_rayleigh,
+    ("QAM16", "rayleigh"): qam16_rayleigh,
+    ("QAM64", "rayleigh"): qam64_rayleigh,
 }
 
 
