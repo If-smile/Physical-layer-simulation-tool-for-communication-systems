@@ -71,6 +71,9 @@ the number of simulated bits, and error counts. Pass `csv_path` to
 - [`examples/rayleigh_comparison.ipynb`](examples/rayleigh_comparison.ipynb)
   compares every implemented modulation over AWGN and coherent Rayleigh fading,
   including target-BER fading penalties and per-experiment CSV exports.
+- [`examples/modulation_comparison.ipynb`](examples/modulation_comparison.ipynb)
+  compares all supported constellations and their AWGN BER performance, including
+  the Eb/N0 required to reach a target BER and the penalty relative to BPSK.
 
 ## Theory model
 
