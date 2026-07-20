@@ -119,9 +119,10 @@ tests/                # Unit and end-to-end tests
 ## Status and roadmap
 
 The initial library, simulation framework, example notebooks, and API
-documentation are complete. Remaining release work includes a changelog,
-versioned release notes, and PyPI publishing. See [TODO.md](TODO.md) for the
-detailed plan.
+documentation are complete. Version `0.1.0` is being prepared as the first
+public release; the remaining release step is PyPI publishing. See
+[CHANGELOG.md](CHANGELOG.md), the
+[`v0.1.0` release notes](docs/releases/0.1.0.rst), and [TODO.md](TODO.md).
 
 ## License
 

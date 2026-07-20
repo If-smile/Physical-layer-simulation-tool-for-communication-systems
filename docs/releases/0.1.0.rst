@@ -1,0 +1,57 @@
+pyberlab 0.1.0
+===============
+
+:Status: Unreleased
+
+Version 0.1.0 is the planned first public release of pyberlab. It provides a
+reproducible foundation for comparing uncoded digital-modulation BER over AWGN
+and coherent flat Rayleigh fading.
+
+Highlights
+----------
+
+* Unit-average-power BPSK, Gray-coded QPSK, 8-PSK, 16-QAM, and 64-QAM
+  constellations with hard-decision demodulation.
+* AWGN and independent per-symbol Rayleigh channel models using explicit NumPy
+  random generators for reproducibility.
+* Exact or numerically averaged BER theory matched to each implemented receiver.
+* Adaptive Monte Carlo sampling, CSV export, and reusable semilog BER plotting.
+* Four executed example notebooks covering individual modulations and comparative
+  experiments.
+
+Theory coverage
+---------------
+
+BPSK and QPSK use closed-form BER expressions for both channels. The 8-PSK
+AWGN baseline integrates the exact receiver decision regions, while its
+Rayleigh result averages that conditional BER over the fading distribution.
+The 16-QAM and 64-QAM baselines enumerate Gray-label Hamming distances across
+the PAM decision regions, then numerically average the exact AWGN result for
+Rayleigh fading.
+
+Quality and compatibility
+-------------------------
+
+* Python 3.9, 3.10, 3.11, and 3.12 are exercised by GitHub Actions.
+* The release is covered by 107 unit, integration, reproducibility,
+  input-validation, and simulation-to-theory tests.
+* Ruff validates the Python sources and executable notebooks.
+* Sphinx builds the API reference with documentation warnings treated as errors.
+
+Known limitations
+-----------------
+
+* Only uncoded, hard-decision links are modelled.
+* Rayleigh fading is independent from symbol to symbol and coherent equalization
+  assumes perfect channel-state information.
+* The high-SNR Monte Carlo estimate can contain zero observed errors when it
+  reaches the configured bit cap; the theoretical result remains available.
+* Rician fading, OFDM, channel coding, and MIMO remain future work.
+
+See also
+--------
+
+* :doc:`Modulation API <../api/modulation>`
+* :doc:`Channel API <../api/channel>`
+* :doc:`Simulation API <../api/simulation>`
+* :doc:`BER theory API <../api/theory>`

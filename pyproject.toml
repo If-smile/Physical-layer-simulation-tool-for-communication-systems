@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyberlab"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Physical layer BER simulation for communication systems"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -32,6 +32,9 @@ docs = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pyberlab*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "pyberlab.__version__" }
 
 [tool.ruff]
 target-version = "py39"

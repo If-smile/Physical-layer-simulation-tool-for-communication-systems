@@ -12,6 +12,7 @@ simulation, CSV export, and plotting helpers.
 
    getting_started
    api/index
+   releases/index
 
 Indices and tables
 ------------------
