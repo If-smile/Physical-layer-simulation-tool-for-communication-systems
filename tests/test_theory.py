@@ -4,10 +4,19 @@ import numpy as np
 import pytest
 from scipy.special import erfc
 
-from pyberlab.theory.ber import (bpsk_awgn, bpsk_rayleigh, get_theory_fn,
-                                 psk8_awgn, psk8_rayleigh, qam16_awgn,
-                                 qam16_rayleigh, qam64_awgn, qam64_rayleigh,
-                                 qpsk_awgn, qpsk_rayleigh)
+from pyberlab.theory.ber import (
+    bpsk_awgn,
+    bpsk_rayleigh,
+    get_theory_fn,
+    psk8_awgn,
+    psk8_rayleigh,
+    qam16_awgn,
+    qam16_rayleigh,
+    qam64_awgn,
+    qam64_rayleigh,
+    qpsk_awgn,
+    qpsk_rayleigh,
+)
 
 # ---------------------------------------------------------------------------
 # Formula correctness
