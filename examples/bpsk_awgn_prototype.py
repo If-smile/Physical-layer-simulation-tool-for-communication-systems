@@ -1,6 +1,7 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import erfc
-import matplotlib.pyplot as plt
+
 
 def bpsk_modulate(bits):
     return 2 * bits - 1

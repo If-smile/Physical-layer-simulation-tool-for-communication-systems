@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyberlab.modulation import BPSK, QPSK, QAM16, QAM64
+from pyberlab.modulation import BPSK, QAM16, QAM64, QPSK
 
 
 @pytest.fixture
