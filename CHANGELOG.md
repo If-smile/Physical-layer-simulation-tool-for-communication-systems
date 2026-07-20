@@ -27,8 +27,9 @@ This is the planned initial public release.
 - Executable BPSK/AWGN, QPSK/AWGN, Rayleigh comparison, and modulation
   comparison notebooks.
 - Sphinx guides and generated API documentation for every public export.
-- Automated Ruff, Python 3.9-3.12 test, and strict documentation checks in
-  GitHub Actions.
+- Complete PyPI metadata, SPDX licensing, and source-distribution contents.
+- Automated Ruff, Python 3.9-3.12 test, strict documentation, distribution
+  inspection, and clean-wheel installation checks in GitHub Actions.
 
 ### Validation
 

@@ -37,6 +37,9 @@ Quality and compatibility
   input-validation, and simulation-to-theory tests.
 * Ruff validates the Python sources and executable notebooks.
 * Sphinx builds the API reference with documentation warnings treated as errors.
+* Wheel and source archives receive strict metadata and content validation.
+* A clean virtual environment installs the wheel and runs modulation and BER
+  smoke tests before the artifacts are accepted.
 
 Known limitations
 -----------------

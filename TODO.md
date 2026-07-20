@@ -23,6 +23,7 @@
 
 - [x] Add module docstrings and generated API reference
 - [x] Add versioned release notes and a changelog
+- [x] Add PyPI metadata and automated distribution validation
 - [ ] Publish the package to PyPI
 
 ## Backlog

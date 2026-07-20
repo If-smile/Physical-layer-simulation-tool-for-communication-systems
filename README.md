@@ -45,6 +45,21 @@ Open `docs/_build/html/index.html` after the build completes. The documentation
 sources start at [`docs/index.rst`](docs/index.rst), and CI treats every Sphinx
 warning as a build failure.
 
+## Release validation
+
+Build and validate the wheel and source distribution without uploading them:
+
+```bash
+pip install -e ".[release]"
+python -m build
+python -m twine check --strict dist/*
+python scripts/check_distribution.py dist
+```
+
+The GitHub Actions `Distribution` job also installs the wheel in a clean virtual
+environment and runs modulation and BER smoke tests. See the complete
+[release validation guide](docs/releasing.rst).
+
 ## Quick start
 
 ```python
@@ -113,6 +128,7 @@ pyberlab/
 └── plot/             # BER curve generation
 examples/             # Executable notebooks and standalone prototypes
 docs/                 # Sphinx guides and generated API reference sources
+scripts/              # Distribution validation and installed-wheel smoke tests
 tests/                # Unit and end-to-end tests
 ```
 
