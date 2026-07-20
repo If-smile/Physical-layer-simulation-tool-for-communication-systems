@@ -5,8 +5,9 @@ import pytest
 from scipy.special import erfc
 
 from pyberlab.theory.ber import (bpsk_awgn, bpsk_rayleigh, get_theory_fn,
-                                 qam16_awgn, qam16_rayleigh, qam64_awgn,
-                                 qam64_rayleigh, qpsk_awgn, qpsk_rayleigh)
+                                 psk8_awgn, psk8_rayleigh, qam16_awgn,
+                                 qam16_rayleigh, qam64_awgn, qam64_rayleigh,
+                                 qpsk_awgn, qpsk_rayleigh)
 
 # ---------------------------------------------------------------------------
 # Formula correctness
@@ -23,6 +24,17 @@ def test_qpsk_awgn_equals_bpsk_awgn():
     """QPSK BER should equal BPSK BER at the same Eb/N0."""
     lin = np.array([1.0, 3.162, 10.0])
     np.testing.assert_allclose(qpsk_awgn(lin), bpsk_awgn(lin))
+
+
+def test_psk8_awgn_exact_values():
+    lin = 10 ** (np.array([0, 5, 10, 15]) / 10)
+    expected = [
+        0.1226927610785051,
+        0.0318614414208807,
+        0.001011395320988671,
+        4.516092535387308e-08,
+    ]
+    np.testing.assert_allclose(psk8_awgn(lin), expected, rtol=1e-10)
 
 
 def test_qam16_awgn_exact_values():
@@ -63,7 +75,14 @@ def test_bpsk_rayleigh_formula(EbN0_dB):
 def test_ber_decreases_with_snr():
     """All BER functions must be monotonically decreasing in Eb/N0."""
     lin = 10 ** (np.arange(0, 12) / 10)
-    for fn in [bpsk_awgn, qpsk_awgn, qam16_awgn, qam64_awgn, bpsk_rayleigh]:
+    for fn in [
+        bpsk_awgn,
+        qpsk_awgn,
+        psk8_awgn,
+        qam16_awgn,
+        qam64_awgn,
+        bpsk_rayleigh,
+    ]:
         ber = fn(lin)
         assert np.all(np.diff(ber) < 0), f"{fn.__name__} is not monotonically decreasing"
 
@@ -71,7 +90,14 @@ def test_ber_decreases_with_snr():
 def test_ber_bounded():
     """BER must be in (0, 0.5] for all tested SNR values."""
     lin = 10 ** (np.arange(0, 12) / 10)
-    for fn in [bpsk_awgn, qpsk_awgn, qam16_awgn, qam64_awgn, bpsk_rayleigh]:
+    for fn in [
+        bpsk_awgn,
+        qpsk_awgn,
+        psk8_awgn,
+        qam16_awgn,
+        qam64_awgn,
+        bpsk_rayleigh,
+    ]:
         ber = fn(lin)
         assert np.all(ber > 0), f"{fn.__name__} returned BER <= 0"
         assert np.all(ber <= 0.5), f"{fn.__name__} returned BER > 0.5"
@@ -86,6 +112,17 @@ def test_rayleigh_worse_than_awgn():
 def test_qpsk_rayleigh_equals_bpsk_rayleigh():
     lin = np.array([1.0, 3.162, 10.0])
     np.testing.assert_allclose(qpsk_rayleigh(lin), bpsk_rayleigh(lin))
+
+
+def test_psk8_rayleigh_values():
+    lin = 10 ** (np.array([0, 5, 10, 15]) / 10)
+    expected = [
+        0.1818181376761986,
+        0.09154808415308803,
+        0.0366742047250139,
+        0.01273965337615775,
+    ]
+    np.testing.assert_allclose(psk8_rayleigh(lin), expected, rtol=1e-9)
 
 
 def test_qam_rayleigh_values():
@@ -109,10 +146,12 @@ def test_qam_rayleigh_values():
 @pytest.mark.parametrize("mod_name, ch_name, expected_fn", [
     ("BPSK",  "awgn",     bpsk_awgn),
     ("QPSK",  "awgn",     qpsk_awgn),
+    ("PSK8",  "awgn",     psk8_awgn),
     ("QAM16", "awgn",     qam16_awgn),
     ("QAM64", "awgn",     qam64_awgn),
     ("BPSK",  "rayleigh", bpsk_rayleigh),
     ("QPSK",  "rayleigh", qpsk_rayleigh),
+    ("PSK8",  "rayleigh", psk8_rayleigh),
     ("QAM16", "rayleigh", qam16_rayleigh),
     ("QAM64", "rayleigh", qam64_rayleigh),
 ])

@@ -7,7 +7,7 @@ MATLAB dependency.
 
 ## Features
 
-- Modulation: BPSK, QPSK, Gray-coded 16-QAM, and Gray-coded 64-QAM
+- Modulation: BPSK, QPSK, Gray-coded 8-PSK, 16-QAM, and 64-QAM
 - Channels: AWGN and independent Rayleigh flat fading with perfect coherent
   equalisation
 - Theory baselines: exact hard-decision BER for the supported AWGN schemes;
@@ -37,7 +37,7 @@ Python 3.9+ is required.
 import numpy as np
 
 from pyberlab.channel import awgn, rayleigh
-from pyberlab.modulation import BPSK, QAM64
+from pyberlab.modulation import BPSK, PSK8, QAM64
 from pyberlab.plot import plot_ber
 from pyberlab.simulation import run_simulation
 
@@ -46,10 +46,11 @@ EbN0_dB = np.arange(0, 13)
 bpsk_awgn = run_simulation(BPSK(), awgn, EbN0_dB, seed=42)
 bpsk_rayleigh = run_simulation(BPSK(), rayleigh, EbN0_dB, seed=42)
 qam64_awgn = run_simulation(QAM64(), awgn, EbN0_dB, seed=42)
+psk8_rayleigh = run_simulation(PSK8(), rayleigh, EbN0_dB, seed=42)
 
 plot_ber(
-    [bpsk_awgn, bpsk_rayleigh, qam64_awgn],
-    ["BPSK AWGN", "BPSK Rayleigh", "64-QAM AWGN"],
+    [bpsk_awgn, bpsk_rayleigh, qam64_awgn, psk8_rayleigh],
+    ["BPSK AWGN", "BPSK Rayleigh", "64-QAM AWGN", "8-PSK Rayleigh"],
     title="BER comparison",
     save_path="outputs/ber_comparison.png",
 )
@@ -62,6 +63,8 @@ the number of simulated bits, and error counts. Pass `csv_path` to
 ## Theory model
 
 For BPSK and QPSK, the AWGN and coherent-Rayleigh formulas are closed form.
+For Gray-coded 8-PSK, the exact AWGN baseline integrates the receiver's angular
+decision regions, and its Rayleigh baseline averages over instantaneous SNR.
 For Gray-coded 16-QAM and 64-QAM, the AWGN baseline exactly enumerates the
 hard-decision PAM regions and Gray-label Hamming distances. Their Rayleigh
 baseline numerically averages that exact conditional BER over the exponential
@@ -74,7 +77,7 @@ SNR as well as high SNR. They are not the common high-SNR QAM approximations.
 
 ```
 pyberlab/
-├── modulation/       # Modulator ABC, BPSK, QPSK, 16-QAM, 64-QAM
+├── modulation/       # Modulator ABC, BPSK, QPSK, 8-PSK, 16-QAM, 64-QAM
 ├── channel/          # AWGN and coherent Rayleigh flat fading
 ├── simulation/       # Runner, BER metrics, CSV output
 ├── theory/           # Analytical and numerical BER baselines
@@ -86,8 +89,8 @@ tests/                # Unit and end-to-end tests
 ## Status and roadmap
 
 The initial library, Rayleigh support, simulation framework, CSV export,
-plotting, and 64-QAM are complete. Remaining near-term work is Gray-coded
-8-PSK, notebooks/API documentation, and a PyPI release. See [TODO.md](TODO.md)
+plotting, 8-PSK, and 64-QAM are complete. Remaining near-term work is example
+notebooks, API documentation, and a PyPI release. See [TODO.md](TODO.md)
 for the detailed plan.
 
 ## License

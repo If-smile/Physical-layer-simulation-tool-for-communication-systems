@@ -4,7 +4,7 @@
 
 - [x] Package structure, editable installation, dependencies, and CI
 - [x] Modulator abstraction and reproducible RNG convention
-- [x] BPSK, QPSK, Gray-coded 16-QAM, and Gray-coded 64-QAM
+- [x] BPSK, QPSK, Gray-coded 8-PSK, 16-QAM, and 64-QAM
 - [x] AWGN and coherent independent Rayleigh flat-fading channels
 - [x] Exact hard-decision AWGN BER baselines for all implemented modulations
 - [x] Rayleigh BER baselines and dispatch entries for all implemented modulations
@@ -14,7 +14,6 @@
 
 ## Next: modulation and examples
 
-- [ ] Implement Gray-coded 8-PSK and its AWGN/Rayleigh theory baselines
 - [ ] Create `examples/bpsk_awgn.ipynb`
 - [ ] Create `examples/qpsk_awgn.ipynb`
 - [ ] Create `examples/rayleigh_comparison.ipynb`

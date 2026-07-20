@@ -1,14 +1,6 @@
-from .ber import (
-    bpsk_awgn,
-    bpsk_rayleigh,
-    get_theory_fn,
-    qam16_awgn,
-    qam16_rayleigh,
-    qam64_awgn,
-    qam64_rayleigh,
-    qpsk_awgn,
-    qpsk_rayleigh,
-)
+from .ber import (bpsk_awgn, bpsk_rayleigh, get_theory_fn, psk8_awgn,
+                  psk8_rayleigh, qam16_awgn, qam16_rayleigh, qam64_awgn,
+                  qam64_rayleigh, qpsk_awgn, qpsk_rayleigh)
 
 __all__ = [
     "bpsk_awgn",
@@ -20,4 +12,6 @@ __all__ = [
     "qam16_rayleigh",
     "qam64_rayleigh",
     "get_theory_fn",
+    "psk8_awgn",
+    "psk8_rayleigh",
 ]

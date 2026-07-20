@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from pyberlab.channel import awgn, rayleigh
-from pyberlab.modulation import BPSK, QAM16, QAM64, QPSK
+from pyberlab.modulation import BPSK, PSK8, QAM16, QAM64, QPSK
 from pyberlab.simulation import run_simulation
 
 # ---------------------------------------------------------------------------
@@ -75,7 +75,7 @@ def test_different_seeds_differ():
 # Multiple modulations / channels
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("mod_cls", [BPSK, QPSK, QAM16])
+@pytest.mark.parametrize("mod_cls", [BPSK, QPSK, PSK8, QAM16, QAM64])
 def test_runs_without_error(mod_cls):
     """run_simulation should complete for all supported modulator/channel pairs."""
     run_simulation(mod_cls(), awgn, [0, 5, 10], seed=0)
@@ -91,7 +91,12 @@ def test_qam_awgn_simulation_tracks_exact_theory(mod_cls):
     np.testing.assert_allclose(res["ber_sim"], res["ber_theory"], rtol=0.08)
 
 
-@pytest.mark.parametrize("mod_cls", [QPSK, QAM16, QAM64])
+def test_psk8_awgn_simulation_tracks_exact_theory():
+    res = run_simulation(PSK8(), awgn, [0, 8], seed=123, min_errors=300)
+    np.testing.assert_allclose(res["ber_sim"], res["ber_theory"], rtol=0.08)
+
+
+@pytest.mark.parametrize("mod_cls", [QPSK, PSK8, QAM16, QAM64])
 def test_rayleigh_simulation_tracks_theory(mod_cls):
     res = run_simulation(mod_cls(), rayleigh, [0, 10], seed=123, min_errors=300)
     np.testing.assert_allclose(res["ber_sim"], res["ber_theory"], rtol=0.10)
