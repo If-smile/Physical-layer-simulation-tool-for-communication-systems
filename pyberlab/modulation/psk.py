@@ -8,45 +8,87 @@ from .base import Modulator
 
 
 class BPSK(Modulator):
-    """Binary Phase Shift Keying.
+    """Binary phase-shift keying with unit symbol power.
 
-    Constellation: {-1, +1} on the real axis.
-    Average symbol power: 1.
-    bits_per_symbol: 1
+    Zero maps to ``-1`` and one maps to ``+1`` on the real axis. Detection uses
+    the sign of the received sample's real component. Each symbol carries one
+    bit.
     """
 
     bits_per_symbol: int = 1
 
     def modulate(self, bits: np.ndarray) -> np.ndarray:
-        """Map bits {0, 1} → symbols {-1, +1}."""
+        """Map binary values to ``-1`` and ``+1`` symbols.
+
+        Parameters
+        ----------
+        bits:
+            One-dimensional binary array.
+
+        Returns
+        -------
+        np.ndarray
+            Real BPSK symbols with unit average power.
+
+        Raises
+        ------
+        ValueError
+            If *bits* is not a one-dimensional binary array.
+        """
         bits = self._validate_bits(bits)
         return (2 * bits - 1).astype(float)
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
-        """Hard decision on real part: positive → 1, negative → 0."""
+        """Recover bits using a zero-threshold decision on the real part.
+
+        Parameters
+        ----------
+        received:
+            One-dimensional array of received BPSK samples.
+
+        Returns
+        -------
+        np.ndarray
+            Hard-decision bits, with positive samples mapped to one.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
+        """
         received = self._validate_received(received)
         return (np.real(received) > 0).astype(int)
 
 
 class QPSK(Modulator):
-    """Quadrature Phase Shift Keying with Gray coding.
+    """Gray-coded quadrature phase-shift keying.
 
-    Bit pairs are mapped to four constellation points in the four quadrants:
-        00 → (-1-1j) / √2
-        01 → (-1+1j) / √2
-        11 → (+1+1j) / √2
-        10 → (+1-1j) / √2
-
-    Average symbol power: 1.
-    bits_per_symbol: 2
+    The first and second bits independently select the in-phase and quadrature
+    signs. Symbols are divided by ``sqrt(2)`` to give unit average power. This
+    produces the circular Gray ordering ``00, 01, 11, 10``. Each symbol carries
+    two bits.
     """
 
     bits_per_symbol: int = 2
 
     def modulate(self, bits: np.ndarray) -> np.ndarray:
-        """Map bit pairs to complex QPSK symbols.
+        """Map bit pairs to complex unit-power QPSK symbols.
 
-        Bits are processed in pairs; an odd-length input is rejected.
+        Parameters
+        ----------
+        bits:
+            One-dimensional binary array with an even length.
+
+        Returns
+        -------
+        np.ndarray
+            One complex QPSK symbol per input bit pair.
+
+        Raises
+        ------
+        ValueError
+            If *bits* is not a one-dimensional binary array with an even
+            length.
         """
         bits = self._validate_bits(bits).reshape(-1, 2)
         # I branch: bit 0 → {-1, +1}, Q branch: bit 1 → {-1, +1}
@@ -55,7 +97,23 @@ class QPSK(Modulator):
         return (i + 1j * q) / np.sqrt(2)
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
-        """Separate I/Q hard decisions, interleave back to bit stream."""
+        """Recover interleaved bits using independent I/Q sign decisions.
+
+        Parameters
+        ----------
+        received:
+            One-dimensional array of received QPSK symbols.
+
+        Returns
+        -------
+        np.ndarray
+            Two hard-decision bits per received symbol.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
+        """
         received = self._validate_received(received)
         i_bits = (np.real(received) > 0).astype(int)
         q_bits = (np.imag(received) > 0).astype(int)
@@ -67,7 +125,8 @@ class PSK8(Modulator):
     """Gray-coded 8-Phase Shift Keying with unit symbol power.
 
     The three input bits form a Gray-code label. Consecutive phase indices use
-    the circular Gray sequence ``000, 001, 011, 010, 110, 111, 101, 100``.
+    the circular Gray sequence ``000, 001, 011, 010, 110, 111, 101, 100``. Each
+    symbol carries three bits.
     """
 
     bits_per_symbol: int = 3
@@ -84,7 +143,24 @@ class PSK8(Modulator):
         return binary
 
     def modulate(self, bits: np.ndarray) -> np.ndarray:
-        """Map three-bit Gray labels to unit-magnitude complex symbols."""
+        """Map three-bit Gray labels to unit-magnitude complex symbols.
+
+        Parameters
+        ----------
+        bits:
+            One-dimensional binary array whose length is a multiple of three.
+
+        Returns
+        -------
+        np.ndarray
+            One complex 8-PSK symbol per three input bits.
+
+        Raises
+        ------
+        ValueError
+            If *bits* is not a one-dimensional binary array whose length is a
+            multiple of three.
+        """
         grouped = self._validate_bits(bits).reshape(-1, self.bits_per_symbol)
         weights = 1 << np.arange(self.bits_per_symbol - 1, -1, -1)
         gray_indices = grouped @ weights
@@ -93,7 +169,23 @@ class PSK8(Modulator):
         return np.exp(1j * phases)
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
-        """Make nearest-phase decisions and return three-bit Gray labels."""
+        """Make nearest-phase decisions and return three-bit Gray labels.
+
+        Parameters
+        ----------
+        received:
+            One-dimensional array of received 8-PSK symbols.
+
+        Returns
+        -------
+        np.ndarray
+            Three hard-decision bits per received symbol.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
+        """
         received = self._validate_received(received)
         phase_step = 2 * np.pi / self._order
         phases = np.mod(np.angle(received), 2 * np.pi)

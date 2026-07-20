@@ -1,3 +1,5 @@
+"""Theoretical BER baselines for supported modulation/channel pairs."""
+
 from .ber import (
     bpsk_awgn,
     bpsk_rayleigh,

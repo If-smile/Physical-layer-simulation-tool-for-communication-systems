@@ -25,6 +25,9 @@ dev = [
     "pytest-cov>=4.1",
     "ruff==0.15.22",
 ]
+docs = [
+    "sphinx>=7.2",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

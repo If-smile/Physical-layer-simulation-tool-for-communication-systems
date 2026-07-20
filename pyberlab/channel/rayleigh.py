@@ -16,12 +16,12 @@ def rayleigh(
     """Apply Rayleigh flat fading and AWGN, then coherently equalize.
 
     Each symbol is multiplied by an independent complex Gaussian fading
-    coefficient h ~ CN(0, 1), then corrupted by AWGN.  Coherent detection
+    coefficient ``h ~ CN(0, 1)``, then corrupted by AWGN. Coherent detection
     assumes perfect channel knowledge at the receiver: the received signal is
-    divided by h before making a decision.
+    divided by ``h`` before making a decision.
 
-    The fading coefficient is normalised so that E[|h|²] = 1, preserving the
-    same average SNR definition as the AWGN channel.
+    The fading coefficient is normalized so that :math:`E[|h|^2] = 1`,
+    preserving the same average SNR definition as the AWGN channel.
 
     Parameters
     ----------
@@ -40,6 +40,18 @@ def rayleigh(
     -------
     np.ndarray
         Equalized received symbols, same length as *signal*.
+
+    Raises
+    ------
+    ValueError
+        If *signal* is not one-dimensional, *EbN0_linear* is not finite and
+        positive, or *bits_per_symbol* is not a positive integer.
+
+    Notes
+    -----
+    This model assumes independent fading from symbol to symbol and perfect
+    channel-state information at the receiver. It does not model estimation
+    error, Doppler correlation, or deep-fade clipping.
     """
     if rng is None:
         rng = np.random.default_rng()

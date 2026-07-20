@@ -9,6 +9,7 @@ __pycache__/
 .coverage
 build/
 dist/
+docs/_build/
 
 # Editors
 .vscode/

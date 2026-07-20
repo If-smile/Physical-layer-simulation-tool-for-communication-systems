@@ -1,3 +1,5 @@
+"""Adaptive Monte Carlo simulation and BER metrics."""
+
 from .metrics import calculate_ber, count_errors
 from .runner import run_simulation
 

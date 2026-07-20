@@ -6,17 +6,27 @@ import numpy as np
 
 
 class Modulator(ABC):
-    """Common interface for all modulation schemes.
+    """Abstract interface for a digital modulation scheme.
 
-    Subclasses must set ``bits_per_symbol`` and implement
-    ``modulate`` / ``demodulate``.
+    Implementations map one-dimensional binary arrays to unit-average-power
+    symbols and recover hard-decision bits from received symbols. Subclasses
+    must define :attr:`bits_per_symbol` and implement :meth:`modulate` and
+    :meth:`demodulate`. The :attr:`bits_per_symbol` attribute reports how many
+    input bits each transmitted symbol represents.
     """
 
     #: Number of bits carried by each complex symbol.
     bits_per_symbol: int
 
     def _validate_bits(self, bits: np.ndarray) -> np.ndarray:
-        """Validate and return a one-dimensional binary bit array."""
+        """Validate and return a one-dimensional binary bit array.
+
+        Raises
+        ------
+        ValueError
+            If the input is not one-dimensional, contains values other than
+            zero and one, or cannot be divided into complete symbols.
+        """
         values = np.asarray(bits)
         if values.ndim != 1:
             raise ValueError("bits must be a one-dimensional array")
@@ -31,7 +41,13 @@ class Modulator(ABC):
 
     @staticmethod
     def _validate_received(received: np.ndarray) -> np.ndarray:
-        """Validate and return a one-dimensional received-symbol array."""
+        """Validate and return a one-dimensional received-symbol array.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
+        """
         values = np.asarray(received)
         if values.ndim != 1:
             raise ValueError("received symbols must be a one-dimensional array")
@@ -44,14 +60,19 @@ class Modulator(ABC):
         Parameters
         ----------
         bits:
-            1-D array of ints in {0, 1}. Length must be a multiple of
-            ``bits_per_symbol``.
+            One-dimensional array containing zeros and ones. Its length must
+            be a multiple of ``bits_per_symbol``.
 
         Returns
         -------
         np.ndarray
-            1-D array of complex (or real) symbols with normalised
-            average power of 1.
+            One-dimensional array of real or complex symbols with normalized
+            average power of one.
+
+        Raises
+        ------
+        ValueError
+            If *bits* is not a valid complete binary symbol stream.
         """
 
     @abstractmethod
@@ -61,12 +82,17 @@ class Modulator(ABC):
         Parameters
         ----------
         received:
-            1-D array of complex (or real) received samples, possibly
-            noise-corrupted.
+            One-dimensional array of real or complex received samples,
+            possibly corrupted by noise or fading.
 
         Returns
         -------
         np.ndarray
-            1-D array of hard-decision bits in {0, 1}.  Length equals
+            One-dimensional array of hard-decision bits. Its length equals
             ``len(received) * bits_per_symbol``.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
         """

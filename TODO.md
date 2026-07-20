@@ -21,7 +21,7 @@
 
 ## Documentation and release
 
-- [ ] Add module docstrings and generated API reference
+- [x] Add module docstrings and generated API reference
 - [ ] Publish the package to PyPI
 - [ ] Add versioned release notes and a changelog
 

@@ -31,6 +31,20 @@ pip install -e ".[dev]"
 
 Python 3.9+ is required.
 
+## Documentation
+
+The API reference is generated from the source docstrings with Sphinx. Build it
+locally with:
+
+```bash
+pip install -e ".[docs]"
+python -m sphinx -W --keep-going -b html docs docs/_build/html
+```
+
+Open `docs/_build/html/index.html` after the build completes. The documentation
+sources start at [`docs/index.rst`](docs/index.rst), and CI treats every Sphinx
+warning as a build failure.
+
 ## Quick start
 
 ```python
@@ -98,15 +112,16 @@ pyberlab/
 ├── theory/           # Analytical and numerical BER baselines
 └── plot/             # BER curve generation
 examples/             # Executable notebooks and standalone prototypes
+docs/                 # Sphinx guides and generated API reference sources
 tests/                # Unit and end-to-end tests
 ```
 
 ## Status and roadmap
 
-The initial library, Rayleigh support, simulation framework, CSV export,
-plotting, 8-PSK, and 64-QAM are complete. Remaining near-term work is example
-notebooks, API documentation, and a PyPI release. See [TODO.md](TODO.md)
-for the detailed plan.
+The initial library, simulation framework, example notebooks, and API
+documentation are complete. Remaining release work includes a changelog,
+versioned release notes, and PyPI publishing. See [TODO.md](TODO.md) for the
+detailed plan.
 
 ## License
 

@@ -21,15 +21,37 @@ from scipy.special import erfc, ndtr
 # ---------------------------------------------------------------------------
 
 def bpsk_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for BPSK over AWGN: 0.5 * erfc(sqrt(Eb/N0))."""
+    """Evaluate the exact coherent BPSK BER over AWGN.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Scalar or array of Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input, calculated as
+        ``0.5 * erfc(sqrt(Eb/N0))``.
+    """
     return 0.5 * erfc(np.sqrt(EbN0_linear))
 
 
 def qpsk_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for QPSK over AWGN.
+    """Evaluate the exact Gray-coded QPSK BER over AWGN.
 
     With Gray coding, each quadrature component is an independent BPSK
     channel at the same Eb/N0, so BER equals the BPSK formula.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Scalar or array of Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input.
     """
     return 0.5 * erfc(np.sqrt(EbN0_linear))
 
@@ -99,7 +121,23 @@ def _psk_awgn_ber(
 
 
 def psk8_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """Exact BER for Gray-coded 8-PSK over AWGN with hard decisions."""
+    """Evaluate exact Gray-coded 8-PSK BER over AWGN with hard decisions.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _psk_awgn_ber(EbN0_linear, order=8)
 
 
@@ -163,26 +201,79 @@ def _square_qam_awgn_ber(
 
 
 def qam16_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """Exact BER for Gray-coded 16-QAM over AWGN with hard decisions."""
+    """Evaluate exact Gray-coded 16-QAM BER over AWGN with hard decisions.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _square_qam_awgn_ber(EbN0_linear, order=16)
 
 
 def qam64_awgn(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """Exact BER for Gray-coded 64-QAM over AWGN with hard decisions."""
+    """Evaluate exact Gray-coded 64-QAM BER over AWGN with hard decisions.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _square_qam_awgn_ber(EbN0_linear, order=64)
 
 
 def bpsk_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for BPSK over Rayleigh flat-fading with coherent detection.
+    """Evaluate BPSK BER over Rayleigh fading with coherent detection.
 
-    Formula: 0.5 * (1 - sqrt(Eb/N0 / (1 + Eb/N0)))
+    Parameters
+    ----------
+    EbN0_linear:
+        Scalar or array of average Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values calculated as
+        ``0.5 * (1 - sqrt(Eb/N0 / (1 + Eb/N0)))``.
     """
     x = EbN0_linear / (1.0 + EbN0_linear)
     return 0.5 * (1.0 - np.sqrt(x))
 
 
 def qpsk_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for Gray-coded QPSK over coherent Rayleigh flat fading."""
+    """Evaluate Gray-coded QPSK BER over coherent Rayleigh fading.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Scalar or array of average Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values with the same scalar/array form as the input. They equal the
+        coherent BPSK result under this channel model.
+    """
     return bpsk_rayleigh(EbN0_linear)
 
 
@@ -213,7 +304,24 @@ def _psk_rayleigh_ber(
 
 
 def psk8_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for Gray-coded 8-PSK over coherent Rayleigh flat fading."""
+    """Evaluate Gray-coded 8-PSK BER over coherent Rayleigh fading.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of average Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values obtained by averaging the exact AWGN result over the
+        exponential instantaneous-SNR distribution.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _psk_rayleigh_ber(EbN0_linear, order=8)
 
 
@@ -249,12 +357,46 @@ def _square_qam_rayleigh_ber(
 
 
 def qam16_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for Gray-coded 16-QAM over coherent Rayleigh flat fading."""
+    """Evaluate Gray-coded 16-QAM BER over coherent Rayleigh fading.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of average Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values obtained by averaging exact conditional AWGN BER over the
+        fading distribution.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _square_qam_rayleigh_ber(EbN0_linear, order=16)
 
 
 def qam64_rayleigh(EbN0_linear: np.ndarray | float) -> np.ndarray | float:
-    """BER for Gray-coded 64-QAM over coherent Rayleigh flat fading."""
+    """Evaluate Gray-coded 64-QAM BER over coherent Rayleigh fading.
+
+    Parameters
+    ----------
+    EbN0_linear:
+        Non-negative scalar or array of average Eb/N0 values in linear units.
+
+    Returns
+    -------
+    float or np.ndarray
+        BER values obtained by averaging exact conditional AWGN BER over the
+        fading distribution.
+
+    Raises
+    ------
+    ValueError
+        If any Eb/N0 value is negative.
+    """
     return _square_qam_rayleigh_ber(EbN0_linear, order=64)
 
 
@@ -292,6 +434,11 @@ def get_theory_fn(
         ``type(modulator).__name__``, e.g. ``"BPSK"``.
     channel_name:
         ``channel_fn.__name__``, e.g. ``"awgn"``.
+
+    Returns
+    -------
+    Callable
+        Registered function accepting linear Eb/N0 values and returning BER.
 
     Raises
     ------

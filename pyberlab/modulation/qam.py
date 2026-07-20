@@ -78,7 +78,24 @@ class _SquareQAM(Modulator):
     # ------------------------------------------------------------------
 
     def modulate(self, bits: np.ndarray) -> np.ndarray:
-        """Map bits to unit-power complex QAM symbols."""
+        """Map binary labels to unit-power complex QAM symbols.
+
+        Parameters
+        ----------
+        bits:
+            One-dimensional binary array whose length is a multiple of
+            :attr:`bits_per_symbol`.
+
+        Returns
+        -------
+        np.ndarray
+            One complex QAM symbol per complete input label.
+
+        Raises
+        ------
+        ValueError
+            If *bits* is not a valid complete binary symbol stream.
+        """
         bps = self.bits_per_symbol
         bpd = self._bpd
         bits = self._validate_bits(bits)
@@ -91,7 +108,23 @@ class _SquareQAM(Modulator):
         return (i_levels + 1j * q_levels) / self._scale
 
     def demodulate(self, received: np.ndarray) -> np.ndarray:
-        """Nearest-neighbour decision → bit stream."""
+        """Recover bits by independently slicing the I and Q PAM levels.
+
+        Parameters
+        ----------
+        received:
+            One-dimensional array of received QAM symbols.
+
+        Returns
+        -------
+        np.ndarray
+            Hard-decision bits in the original per-symbol I/Q layout.
+
+        Raises
+        ------
+        ValueError
+            If *received* is not one-dimensional.
+        """
         received = self._validate_received(received)
         bpd = self._bpd
         n_sym = len(received)
@@ -105,10 +138,22 @@ class _SquareQAM(Modulator):
 
 
 class QAM16(_SquareQAM):
-    """16-QAM: 4 bits/symbol, Gray-coded, unit average power."""
+    """Gray-coded square 16-QAM with unit average symbol power.
+
+    Each symbol carries four bits: two select the in-phase PAM level and two
+    select the quadrature PAM level. Demodulation uses nearest-neighbour slicing
+    independently on the two axes.
+    """
+
     order = 16
 
 
 class QAM64(_SquareQAM):
-    """64-QAM: 6 bits/symbol, Gray-coded, unit average power."""
+    """Gray-coded square 64-QAM with unit average symbol power.
+
+    Each symbol carries six bits: three select the in-phase PAM level and three
+    select the quadrature PAM level. Demodulation uses nearest-neighbour slicing
+    independently on the two axes.
+    """
+
     order = 64

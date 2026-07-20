@@ -11,7 +11,7 @@ def calculate_ber(tx_bits: np.ndarray, rx_bits: np.ndarray) -> float:
     Parameters
     ----------
     tx_bits:
-        Transmitted bit array (1-D, dtype int).
+        One-dimensional transmitted bit array.
     rx_bits:
         Received / decoded bit array.  Must have the same length as
         *tx_bits* (or longer; extra bits are ignored).
@@ -20,6 +20,12 @@ def calculate_ber(tx_bits: np.ndarray, rx_bits: np.ndarray) -> float:
     -------
     float
         Fraction of bits in error, in [0, 1].
+
+    Raises
+    ------
+    ValueError
+        If either input is not one-dimensional, *tx_bits* is empty, or
+        *rx_bits* is shorter than *tx_bits*.
     """
     tx_bits = np.asarray(tx_bits)
     rx_bits = np.asarray(rx_bits)
@@ -35,7 +41,26 @@ def calculate_ber(tx_bits: np.ndarray, rx_bits: np.ndarray) -> float:
 
 
 def count_errors(tx_bits: np.ndarray, rx_bits: np.ndarray) -> int:
-    """Return the number of bit errors."""
+    """Count unequal transmitted and received bits.
+
+    Parameters
+    ----------
+    tx_bits:
+        One-dimensional transmitted bit array.
+    rx_bits:
+        One-dimensional received bit array. Extra trailing values are ignored.
+
+    Returns
+    -------
+    int
+        Number of unequal values over the length of *tx_bits*.
+
+    Raises
+    ------
+    ValueError
+        If either input is not one-dimensional or *rx_bits* is shorter than
+        *tx_bits*.
+    """
     tx_bits = np.asarray(tx_bits)
     rx_bits = np.asarray(rx_bits)
     if tx_bits.ndim != 1 or rx_bits.ndim != 1:

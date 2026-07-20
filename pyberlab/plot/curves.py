@@ -22,7 +22,8 @@ def plot_ber(
     Parameters
     ----------
     results_list:
-        List of result dicts as returned by :func:`run_simulation`.
+        Result dictionaries returned by
+        :func:`~pyberlab.simulation.run_simulation`.
     labels:
         Display label for each result dict (same order).
     show_theory:
@@ -38,6 +39,15 @@ def plot_ber(
     Returns
     -------
     matplotlib.figure.Figure
+        Figure containing the BER axes and curves.
+
+    Raises
+    ------
+    ValueError
+        If no results are supplied or *results_list* and *labels* have
+        different lengths.
+    KeyError
+        If a result dictionary does not contain the required BER fields.
     """
     if len(results_list) != len(labels):
         raise ValueError("results_list and labels must have the same length")

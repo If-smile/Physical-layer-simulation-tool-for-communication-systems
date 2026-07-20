@@ -25,7 +25,7 @@ def run_simulation(
 ) -> dict:
     """Run a BER simulation over a range of Eb/N0 values.
 
-    For each SNR point the sample count is chosen adaptively: enough bits are
+    For each SNR point, the sample count is chosen adaptively: enough bits are
     generated to expect at least *min_errors* errors (based on the theoretical
     BER), capped at *max_bits* to bound runtime.
 
@@ -39,22 +39,38 @@ def run_simulation(
         ``channel_fn(signal, EbN0_linear, bits_per_symbol, *, rng) -> received``.
         Must be one of the registered channels (``awgn``, ``rayleigh``).
     EbN0_dB_range:
-        Iterable of Eb/N0 values in dB.
+        Non-empty iterable of finite Eb/N0 values in dB.
     seed:
-        Integer seed for reproducibility.  ``None`` → non-reproducible.
+        Integer seed for reproducibility. ``None`` uses fresh entropy.
     min_errors:
         Minimum expected error count used to set adaptive sample size.
     max_bits:
         Hard cap on bits per SNR point.
     csv_path:
-        If provided, results are saved to this CSV file.
+        Optional destination for a CSV copy of the result table. Parent
+        directories are created automatically.
 
     Returns
     -------
     dict
-        Keys: ``EbN0_dB``, ``ber_sim``, ``ber_theory``,
-        ``n_bits``, ``n_errors``  — each a list of length
-        ``len(EbN0_dB_range)``.
+        Lists named ``EbN0_dB``, ``ber_sim``, ``ber_theory``, ``n_bits``, and
+        ``n_errors``. Each list has one entry per requested SNR point.
+
+    Raises
+    ------
+    TypeError
+        If *modulator* is not a :class:`~pyberlab.modulation.Modulator` or
+        *channel_fn* is not callable.
+    ValueError
+        If sampling limits or Eb/N0 values are invalid.
+    KeyError
+        If no theoretical BER function is registered for the selected
+        modulation/channel pair.
+
+    Notes
+    -----
+    The adaptive count is rounded down to a whole number of symbols and is at
+    least 100,000 bits unless constrained by *max_bits*.
     """
     if not isinstance(modulator, Modulator):
         raise TypeError("modulator must be an instance of Modulator")

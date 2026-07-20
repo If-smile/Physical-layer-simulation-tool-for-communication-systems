@@ -25,10 +25,11 @@ def awgn(
     bits_per_symbol: int = 1,
     rng: np.random.Generator | None = None,
 ) -> np.ndarray:
-    """Add AWGN noise to a signal.
+    """Pass symbols through an additive white Gaussian noise channel.
 
     Noise power is computed from Eb/N0 and the number of bits per symbol,
-    assuming the signal has unit average symbol power.
+    assuming unit average transmitted symbol power. Real inputs receive real
+    noise; complex inputs receive circular complex noise.
 
     Parameters
     ----------
@@ -47,6 +48,17 @@ def awgn(
     np.ndarray
         Noise-corrupted signal with the same shape and dtype family as
         *signal*.
+
+    Raises
+    ------
+    ValueError
+        If *signal* is not one-dimensional, *EbN0_linear* is not finite and
+        positive, or *bits_per_symbol* is not a positive integer.
+
+    Notes
+    -----
+    The variance in each real noise dimension is
+    ``1 / (2 * bits_per_symbol * EbN0_linear)``.
     """
     if rng is None:
         rng = np.random.default_rng()
