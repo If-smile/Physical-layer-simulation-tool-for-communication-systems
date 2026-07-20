@@ -68,6 +68,9 @@ the number of simulated bits, and error counts. Pass `csv_path` to
 - [`examples/qpsk_awgn.ipynb`](examples/qpsk_awgn.ipynb) demonstrates the
   Gray-coded QPSK constellation, independent I/Q decisions, and its theoretical
   BER equivalence with BPSK.
+- [`examples/rayleigh_comparison.ipynb`](examples/rayleigh_comparison.ipynb)
+  compares every implemented modulation over AWGN and coherent Rayleigh fading,
+  including target-BER fading penalties and per-experiment CSV exports.
 
 ## Theory model
 

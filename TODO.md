@@ -16,7 +16,7 @@
 
 - [x] Create `examples/bpsk_awgn.ipynb`
 - [x] Create `examples/qpsk_awgn.ipynb`
-- [ ] Create `examples/rayleigh_comparison.ipynb`
+- [x] Create `examples/rayleigh_comparison.ipynb`
 - [ ] Create `examples/modulation_comparison.ipynb`
 
 ## Documentation and release
