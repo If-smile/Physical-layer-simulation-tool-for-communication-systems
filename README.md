@@ -60,6 +60,12 @@ Each result dictionary contains `EbN0_dB`, simulated and theoretical BER,
 the number of simulated bits, and error counts. Pass `csv_path` to
 `run_simulation` to persist the result table.
 
+## Examples
+
+- [`examples/bpsk_awgn.ipynb`](examples/bpsk_awgn.ipynb) presents a complete,
+  reproducible BPSK/AWGN experiment with constellation, statistics, CSV export,
+  and BER plotting.
+
 ## Theory model
 
 For BPSK and QPSK, the AWGN and coherent-Rayleigh formulas are closed form.
@@ -82,7 +88,7 @@ pyberlab/
 ├── simulation/       # Runner, BER metrics, CSV output
 ├── theory/           # Analytical and numerical BER baselines
 └── plot/             # BER curve generation
-examples/             # Standalone prototype example
+examples/             # Executable notebooks and standalone prototypes
 tests/                # Unit and end-to-end tests
 ```
 
