@@ -65,6 +65,9 @@ the number of simulated bits, and error counts. Pass `csv_path` to
 - [`examples/bpsk_awgn.ipynb`](examples/bpsk_awgn.ipynb) presents a complete,
   reproducible BPSK/AWGN experiment with constellation, statistics, CSV export,
   and BER plotting.
+- [`examples/qpsk_awgn.ipynb`](examples/qpsk_awgn.ipynb) demonstrates the
+  Gray-coded QPSK constellation, independent I/Q decisions, and its theoretical
+  BER equivalence with BPSK.
 
 ## Theory model
 

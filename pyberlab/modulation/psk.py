@@ -32,10 +32,10 @@ class QPSK(Modulator):
     """Quadrature Phase Shift Keying with Gray coding.
 
     Bit pairs are mapped to four constellation points in the four quadrants:
-        00 → (+1+1j) / √2
-        01 → (+1-1j) / √2
-        11 → (-1-1j) / √2
-        10 → (-1+1j) / √2
+        00 → (-1-1j) / √2
+        01 → (-1+1j) / √2
+        11 → (+1+1j) / √2
+        10 → (+1-1j) / √2
 
     Average symbol power: 1.
     bits_per_symbol: 2

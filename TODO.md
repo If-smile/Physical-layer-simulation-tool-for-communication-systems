@@ -15,7 +15,7 @@
 ## Next: modulation and examples
 
 - [x] Create `examples/bpsk_awgn.ipynb`
-- [ ] Create `examples/qpsk_awgn.ipynb`
+- [x] Create `examples/qpsk_awgn.ipynb`
 - [ ] Create `examples/rayleigh_comparison.ipynb`
 - [ ] Create `examples/modulation_comparison.ipynb`
 
